@@ -8,8 +8,9 @@ These CSV files can then be loaded in Google Sheets or Excel and edited/updated 
 Dependancies
 ----------
 
-Python 2.x
-csvkit *pip install csvkit*
+- Python 2.x
+
+- csvkit *pip install csvkit*
 
 
 Usage
