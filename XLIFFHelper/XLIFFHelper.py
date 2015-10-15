@@ -165,6 +165,11 @@ class CSVWriter(object):
 			output.writerow(localisedString.dictionary_representation())
 		
 		return buf.getvalue()
+	
+def applyISOCode(localisedStrings,iso_code):
+	if iso_code != None:
+		for e in localisedStrings:
+			e.language = iso_code
 		
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser(
@@ -176,22 +181,24 @@ if __name__ == '__main__':
 	parser.add_argument("--output", nargs = "?", type = argparse.FileType('w ', 0), help="Destination file (CSV or XLIFF), this file is overwritten, not appended")
 	parser.add_argument("--iso_code", nargs = "?", type = str, help="The two letter language ISO code for the output file, ie en, zh.")
 
+	args = parser.parse_args()
 	# args = parser.parse_args("--mode 1 --input es.xliff --output es.csv".split())
-	args = parser.parse_args("--mode 2 --input es.csv --output fr.xliff --iso_code fr".split())
+	# args = parser.parse_args("--mode 2 --input es.csv --output fr.xliff --iso_code fr".split())
 	
 	if args.mode == 1:
 		xmlString = args.input.read()
 		localisedStrings = XLIFFReader(xmlString).getLocalisationStrings()
 		
-		if args.iso_code != None:
-			for e in localisedStrings:
-				e.language = args.iso_code
+		applyISOCode(localisedStrings,args.iso_code)
 		
 		csvString = CSVWriter(localisedStrings).getCSV()
 		args.output.write(csvString)
 		
 	elif args.mode == 2: 
 		localisedStrings = CSVReader(args.input).getLocalisationStrings()
+		
+		applyISOCode(localisedStrings,args.iso_code)
+		
 		xmlFile = XLIFFWriter(localisedStrings).localizeTemplate()
 		
 		args.output.write(xmlFile)
