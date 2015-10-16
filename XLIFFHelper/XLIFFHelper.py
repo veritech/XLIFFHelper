@@ -9,13 +9,15 @@ class LocalisationString(object):
 			self.identifier = None
 			self.language = None
 			self.file = None
-			self.text = None
+			self.original_text = None
+			self.target_text = None
 			self.note = None
 		else:
 			self.identifier = dictionary["identifier"]
 			self.language = dictionary["language"]
 			self.file = dictionary["file"]
-			self.text = dictionary["text"]
+			self.original_text = dictionary["original_text"]
+			self.target_text = dictionary["target_text"]
 			self.note = dictionary["note"]
 
 	def dictionary_representation(self):
@@ -23,7 +25,8 @@ class LocalisationString(object):
 			"identifier":self.identifier,
 			"language":self.language,
 			"file":self.file,
-			"text":self.text,
+			"original_text":self.original_text,
+			"target_text":self.target_text,
 			"note":self.note
 		}
 		
@@ -33,7 +36,8 @@ class LocalisationString(object):
 			"file",
 			"language",
 			"note",
-			"text",
+			"original_text",
+			"target_text"
 		]
 		
 	def __repr__(self):
@@ -61,9 +65,11 @@ class XLIFFReader(object):
 						
 						for child in unit.getchildren():
 							if "source" in child.tag:
-								obj.text = child.text
+								obj.original_text = child.text
 							elif "note" in child.tag:
 								obj.note = child.text
+							elif "target" in child.tag:
+								obj.target_text = child.text
 								
 						strings.append(obj)
 						
@@ -99,7 +105,8 @@ class XLIFFWriter(object):
 				# Create a file
 				file = ET.Element("file")
 				file.attrib["original"] = localisedString.file
-				file.attrib["source-language"] = localisedString.language
+				file.attrib["source-language"] = "en"
+				file.attrib["target-language"] = localisedString.language
 				file.attrib["datatype"] = "plaintext"
 				root.append(file)
 				
@@ -116,8 +123,13 @@ class XLIFFWriter(object):
 			
 			unit.attrib["id"] = localisedString.identifier
 			source = ET.Element("source")
-			source.text = localisedString.text
+			source.text = localisedString.original_text
 			unit.append(source)
+			
+			target = ET.Element("target")
+			target.text = localisedString.target_text
+			unit.append(target)
+			
 			note = ET.Element("note")
 			note.text = localisedString.note
 			unit.append(note)
